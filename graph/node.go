@@ -14,8 +14,11 @@ type Node struct {
 	Outputs  map[string]int // the outputs information map[node_name](data quantity)
 }
 
+// Method on node object to start processing
 func (n *Node) Run() {
 	log.Printf("Node (%s): Initiated\n", n.Name)
+
+	// For source node, block on source channel and wait for triggering
 	if n.IsSource {
 		<-sourceChannel
 		log.Printf("Node (%s): ----- Start processing data ----- \n", n.Name)
@@ -24,6 +27,7 @@ func (n *Node) Run() {
 			log.Printf("Node (%s): Send <%d> to (%s)\n", n.Name, data, node_name)
 			channels[channel_name] <-Message{Quantity: data}
 		}
+	// For drain node, once finished, trigger the drain channel
 	}else if n.IsDrain {
 		for node_name,data:=range n.Inputs {
 			channel_name := fmt.Sprintf("%s-%s",node_name,n.Name)
@@ -34,6 +38,9 @@ func (n *Node) Run() {
 			}
 		}
 		drainChannel <-Message{}
+	// All nodes need to block on input channels,
+	// start processing once it collects enough inputs,
+	// then sends messages to output channels
 	}else {
 		var received_data int
 		for node_name,data:=range n.Inputs {
@@ -54,15 +61,4 @@ func (n *Node) Run() {
 			}
 		}
 	}
-	/*
-		To be completed:
-		1. For source node, block on source channel and wait for triggering;
-		2. For darin node, once it finishes, trigger the drain channel;
-		3. All nodes need to block on input channels, and to start processing once it collects enough inputs,
-		  	then sends messages to output channels;
-		4. Print information such as:
-			log.Printf("Node (%s): Receive <%d> from (%s)\n", n.Name, msg.Quantity, inputNodeName)
-			log.Printf("Node (%s): ----- Start processing data ----- \n", n.Name)
-			log.Printf("Node (%s): Send <%d> to (%s)\n", n.Name, quantity, outputNodeName)
-	*/
 }

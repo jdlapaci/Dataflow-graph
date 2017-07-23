@@ -72,6 +72,7 @@ func ConstructGraph(graphConfig *config.GraphConfig) *Graph {
 			}
 			graph.Nodes[nodeName] = node
 		}
+		// Define nodes and label source and drain
 		graph.Nodes[nodeName].Inputs = nodeConfig.Inputs
 		graph.Nodes[nodeName].Outputs = nodeConfig.Outputs
 		if len(nodeConfig.Inputs) == 0 {
@@ -84,11 +85,6 @@ func ConstructGraph(graphConfig *config.GraphConfig) *Graph {
 			channel_name := fmt.Sprintf("%s-%s",nodeName,node_name)
 			channels[channel_name] = make(chan Message,CHANNEL_SIZE)
 		}
-		/*
-			To be completed:
-			1. Initialize the newly created nodes;
-			2. Create channels that are necessary for data communication.
-		*/
 	}
 
 	return graph
